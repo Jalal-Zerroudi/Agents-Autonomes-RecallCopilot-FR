@@ -59,6 +59,42 @@ RecallCopilot FR est un projet de copilote destiné à accélérer le traitement
 - exposer les fonctions par une API FastAPI ;
 - ajouter des tests, des métriques et un journal d’audit.
 
+## Périmètre du premier prototype
+
+Le premier prototype doit rester local, reproductible et fondé uniquement sur des données synthétiques ou publiques.
+
+### Entrées minimales
+
+- un avis de rappel d’exemple, conservant son URL source et sa date de collecte ;
+- un inventaire synthétique au format CSV avec au minimum une référence interne, un libellé et un EAN/GTIN ;
+- une configuration locale définissant les seuils de correspondance, sans secret versionné.
+
+### Sorties attendues
+
+- un rapport structuré listant les correspondances exactes, incertaines et absentes ;
+- la règle appliquée et le niveau de confiance pour chaque résultat ;
+- un brouillon d’affiche PDF clairement identifié comme non validé ;
+- un journal d’audit horodaté reliant chaque sortie à ses données sources.
+
+### Hors périmètre initial
+
+- connexion à un inventaire de production ;
+- envoi automatique d’e-mails, SMS ou notifications publiques ;
+- publication automatique d’une affiche ;
+- décision fondée uniquement sur un modèle génératif ;
+- déclaration de conformité juridique sans validation compétente.
+
+## Critères d’acceptation du prototype
+
+Le prototype pourra être considéré comme démontrable lorsque :
+
+- un EAN/GTIN invalide est détecté avant le rapprochement ;
+- une correspondance exacte est distinguée d’une correspondance approximative ;
+- les cas sans résultat ou ambigus sont bloqués pour validation humaine ;
+- chaque résultat indique sa source, son horodatage et la règle utilisée ;
+- les scénarios « correspondance exacte », « aucune correspondance », « résultat ambigu » et « entrée invalide » sont couverts par des tests ;
+- une exécution complète peut être reproduite sans donnée sensible ni service payant obligatoire.
+
 ## Limites
 
 L’objectif de temps de traitement et la conformité des documents générés devront être mesurés et validés sur une implémentation réelle. Les sorties du futur système devront rester soumises aux procédures internes et aux obligations réglementaires applicables.
