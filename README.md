@@ -47,6 +47,19 @@ RecallCopilot FR est un projet de copilote destiné à accélérer le traitement
 - stocker les secrets et identifiants hors du dépôt ;
 - prévoir une validation humaine avant toute publication.
 
+## Règle minimale de validation EAN/GTIN
+
+Avant tout rapprochement, l'identifiant produit devra être traité comme une chaîne de caractères afin de conserver ses éventuels zéros initiaux, puis validé de manière déterministe :
+
+1. retirer uniquement les espaces ou séparateurs explicitement autorisés ;
+2. rejeter toute valeur contenant encore un caractère non numérique ;
+3. accepter uniquement les longueurs GTIN-8, GTIN-12, GTIN-13 ou GTIN-14 ;
+4. considérer le dernier chiffre comme chiffre de contrôle ;
+5. parcourir les autres chiffres de droite à gauche en appliquant alternativement les poids 3 et 1 ;
+6. calculer le chiffre attendu avec `(10 - (somme % 10)) % 10` et le comparer au dernier chiffre.
+
+Un identifiant vide, de longueur incorrecte ou dont le chiffre de contrôle ne correspond pas devra être classé comme invalide avant toute recherche approximative. Référence : [méthode officielle de calcul GS1](https://www.gs1.org/services/how-calculate-check-digit-manually).
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
