@@ -60,6 +60,21 @@ Avant tout rapprochement, l'identifiant produit devra être traité comme une ch
 
 Un identifiant vide, de longueur incorrecte ou dont le chiffre de contrôle ne correspond pas devra être classé comme invalide avant toute recherche approximative. Référence : [méthode officielle de calcul GS1](https://www.gs1.org/services/how-calculate-check-digit-manually).
 
+## Idempotence et gestion des mises à jour
+
+La surveillance devra pouvoir relire plusieurs fois la même source sans recréer les mêmes actions. Chaque avis collecté devra donc recevoir une clé stable, issue en priorité de son identifiant officiel et, à défaut, d'une empreinte déterministe des champs sources pertinents.
+
+Les règles minimales sont les suivantes :
+
+- une collecte identique met à jour l'horodatage de dernière vérification sans dupliquer le dossier ;
+- une modification de la source crée une nouvelle version liée à l'avis initial ;
+- une nouvelle version invalide les brouillons non approuvés devenus obsolètes ;
+- une notification ou une affiche possède une clé d'idempotence empêchant sa génération ou son envoi en double ;
+- chaque transition d'état est horodatée et ajoutée au journal d'audit ;
+- seuls les états explicitement approuvés peuvent atteindre l'étape de diffusion.
+
+Le cycle minimal attendu est : `collecté` → `validé` → `rapproché` → `en attente de validation` → `approuvé` → `diffusé`. Les erreurs et rejets doivent rester enregistrés sans être assimilés à une diffusion réussie.
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
