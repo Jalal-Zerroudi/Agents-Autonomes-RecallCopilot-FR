@@ -60,6 +60,21 @@ Avant tout rapprochement, l'identifiant produit devra être traité comme une ch
 
 Un identifiant vide, de longueur incorrecte ou dont le chiffre de contrôle ne correspond pas devra être classé comme invalide avant toute recherche approximative. Référence : [méthode officielle de calcul GS1](https://www.gs1.org/services/how-calculate-check-digit-manually).
 
+## Politique de rapprochement et niveaux de confiance
+
+Le rapprochement doit privilégier les règles déterministes avant toute comparaison approximative. Les seuils numériques devront être configurables, versionnés et évalués sur un jeu de données de test ; ils ne doivent pas être présentés comme une preuve à eux seuls.
+
+| Résultat | Condition minimale | Traitement |
+| --- | --- | --- |
+| `exact` | GTIN valide et identique dans l'avis et l'inventaire | Peut être proposé pour approbation humaine |
+| `candidat` | Aucun GTIN exact, mais des attributs concordants produisent un score supérieur au seuil configuré | Bloqué en attente de validation humaine |
+| `absent` | Aucun candidat ne dépasse le seuil minimal | Aucune diffusion ; cas conservé pour suivi |
+| `invalide` | GTIN invalide ou données sources insuffisantes | Rapprochement interrompu et anomalie journalisée |
+
+Une correspondance approximative devra indiquer les attributs comparés — par exemple la marque, le libellé, le lot, le conditionnement ou la période de commercialisation — ainsi que leur contribution au score. Un modèle génératif pourra aider à expliquer ou ordonner les candidats, mais ne devra jamais transformer seul un résultat `candidat` en résultat `exact`.
+
+Chaque décision de rapprochement devra au minimum enregistrer l'identifiant de l'avis source, la référence d'inventaire, le GTIN normalisé, le type de correspondance, le score éventuel, le statut, la version de la règle appliquée et l'horodatage. Une modification de règle devra entraîner une nouvelle évaluation traçable plutôt que l'écrasement silencieux du résultat précédent.
+
 ## Idempotence et gestion des mises à jour
 
 La surveillance devra pouvoir relire plusieurs fois la même source sans recréer les mêmes actions. Chaque avis collecté devra donc recevoir une clé stable, issue en priorité de son identifiant officiel et, à défaut, d'une empreinte déterministe des champs sources pertinents.
