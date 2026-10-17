@@ -90,6 +90,39 @@ Les règles minimales sont les suivantes :
 
 Le cycle minimal attendu est : `collecté` → `validé` → `rapproché` → `en attente de validation` → `approuvé` → `diffusé`. Les erreurs et rejets doivent rester enregistrés sans être assimilés à une diffusion réussie.
 
+## Contrat minimal de données
+
+Le prototype devra convertir les données collectées vers un schéma interne stable avant tout rapprochement. Le contenu source brut ou son empreinte devra être conservé séparément afin de pouvoir expliquer et rejouer la normalisation.
+
+### Avis de rappel normalisé
+
+| Champ | Type | Obligatoire | Rôle |
+| --- | --- | --- | --- |
+| `recall_id` | chaîne | oui | Identifiant officiel stable ou empreinte de secours |
+| `source_url` | URI | oui | Lien exact vers l’avis source |
+| `collected_at` | date-heure ISO 8601 UTC | oui | Horodatage de la collecte |
+| `source_hash` | chaîne | oui | Empreinte du contenu ayant produit cette version |
+| `product_name` | chaîne | oui | Libellé du produit rappelé |
+| `brand` | chaîne ou `null` | non | Marque telle qu’indiquée par la source |
+| `gtins` | liste de chaînes | non | Identifiants conservant leurs zéros initiaux |
+| `lots` | liste de chaînes | non | Lots concernés sans déduction implicite |
+| `sale_start` / `sale_end` | date ou `null` | non | Période de commercialisation publiée |
+| `reason` | chaîne ou `null` | non | Motif officiel du rappel |
+| `consumer_action` | chaîne ou `null` | non | Conduite à tenir publiée |
+
+### Ligne d’inventaire synthétique
+
+| Champ | Type | Obligatoire | Rôle |
+| --- | --- | --- | --- |
+| `inventory_ref` | chaîne | oui | Référence interne unique |
+| `product_name` | chaîne | oui | Libellé utilisé pour le rapprochement |
+| `brand` | chaîne ou `null` | non | Marque connue dans l’inventaire |
+| `gtin` | chaîne ou `null` | non | GTIN conservé comme texte puis validé |
+| `lot` | chaîne ou `null` | non | Lot disponible lorsque l’inventaire le suit |
+| `updated_at` | date-heure ISO 8601 UTC | oui | Fraîcheur de la ligne comparée |
+
+Les espaces périphériques peuvent être supprimés, mais les valeurs sources ne doivent pas être traduites, complétées ou fusionnées silencieusement. Un champ facultatif absent doit devenir `null` ou une liste vide selon son type ; il ne doit pas être remplacé par une valeur inventée. Chaque erreur de validation doit préciser le champ, la valeur reçue et la règle violée.
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
