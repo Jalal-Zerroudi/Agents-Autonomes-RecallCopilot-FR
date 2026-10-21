@@ -123,6 +123,32 @@ Le prototype devra convertir les données collectées vers un schéma interne st
 
 Les espaces périphériques peuvent être supprimés, mais les valeurs sources ne doivent pas être traduites, complétées ou fusionnées silencieusement. Un champ facultatif absent doit devenir `null` ou une liste vide selon son type ; il ne doit pas être remplacé par une valeur inventée. Chaque erreur de validation doit préciser le champ, la valeur reçue et la règle violée.
 
+## Contrat minimal du journal d'audit
+
+Le journal devra être append-only : une correction crée un nouvel événement lié au
+précédent, sans modifier ni supprimer l'événement historique. Chaque écriture
+devra au minimum contenir :
+
+| Champ | Rôle |
+| --- | --- |
+| `event_id` | Identifiant unique de l'événement |
+| `event_type` | Type stable, par exemple `source_version_created`, `match_evaluated`, `review_recorded` ou `notification_sent` |
+| `occurred_at` | Date-heure ISO 8601 en UTC générée par le service |
+| `recall_id` / `source_version_id` | Avis et version concernés |
+| `correlation_id` | Identifiant reliant une exécution complète et ses reprises |
+| `actor_type` / `actor_id` | Service, agent ou réviseur à l'origine de l'action |
+| `previous_state` / `new_state` | Transition demandée, avec une valeur absente si elle ne change pas l'état |
+| `rule_version` | Version des règles de validation ou de rapprochement appliquées |
+| `input_hash` / `output_hash` | Empreintes des données utilisées et produites |
+| `decision_reason` | Motif structuré d'une validation, d'un rejet ou d'une erreur |
+
+Un événement de diffusion devra référencer l'approbation humaine qui l'autorise
+et la clé d'idempotence de la notification. Une reprise avec la même clé ne devra
+pas créer un second envoi réussi. Les événements techniques pourront contenir
+des identifiants et empreintes, mais pas l'inventaire complet, des secrets ou des
+coordonnées personnelles en clair. L'accès au journal et sa durée de conservation
+devront être définis séparément des données opérationnelles.
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
