@@ -149,6 +149,35 @@ des identifiants et empreintes, mais pas l'inventaire complet, des secrets ou de
 coordonnées personnelles en clair. L'accès au journal et sa durée de conservation
 devront être définis séparément des données opérationnelles.
 
+## Politique minimale des erreurs et des reprises
+
+Une erreur ne doit pas être relancée automatiquement sans classification préalable.
+Le traitement devra distinguer au minimum les catégories suivantes :
+
+| Catégorie | Exemples | Traitement attendu |
+| --- | --- | --- |
+| `transitoire` | délai réseau dépassé, indisponibilité temporaire, limitation de débit | reprise bornée avec attente progressive et conservation de la même clé d'idempotence |
+| `permanente` | schéma invalide, champ obligatoire absent, GTIN invalide | aucun nouvel essai automatique ; anomalie journalisée et dossier rejeté |
+| `métier` | correspondance ambiguë, règle non applicable, données contradictoires | suspension du flux et validation humaine obligatoire |
+| `diffusion_inconnue` | délai dépassé après une demande d'envoi | vérifier d'abord l'état auprès du service de diffusion ; ne jamais supposer que l'envoi a échoué |
+
+Chaque échec devra enregistrer un code stable, un message exploitable sans donnée
+sensible, le nombre de tentatives, les dates du premier et du dernier échec, la
+prochaine date de reprise et le caractère relançable ou non. Le nombre maximal
+de tentatives et la stratégie d'attente devront être configurables et versionnés.
+
+Après épuisement des tentatives, le dossier passe en `quarantaine`. Un élément en
+quarantaine ne peut ni produire une sortie approuvée ni déclencher une diffusion.
+Sa libération exige une action humaine enregistrant l'acteur, le motif et la
+version de règle utilisée. Une reprise doit repartir du dernier point de contrôle
+sûr et conserver la version de source initiale, au lieu de recommencer
+silencieusement tout le flux.
+
+Les tests devront vérifier au minimum qu'une panne transitoire peut réussir après
+reprise, qu'une erreur permanente n'est pas relancée, que l'épuisement des
+tentatives conduit à la quarantaine et que plusieurs reprises avec la même clé
+d'idempotence ne produisent jamais deux notifications réussies.
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
