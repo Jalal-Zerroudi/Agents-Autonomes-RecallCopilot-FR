@@ -149,6 +149,44 @@ des identifiants et empreintes, mais pas l'inventaire complet, des secrets ou de
 coordonnées personnelles en clair. L'accès au journal et sa durée de conservation
 devront être définis séparément des données opérationnelles.
 
+## Validation humaine et autorisation de diffusion
+
+Une sortie générée restera un brouillon tant qu'un réviseur autorisé ne l'aura
+pas approuvée explicitement. L'approbation devra porter sur une version précise
+de l'avis, du rapprochement et du document à diffuser ; elle ne pourra pas être
+réutilisée après modification de l'une de ces entrées.
+
+| Champ d'approbation | Rôle |
+| --- | --- |
+| `review_id` | Identifiant unique de la décision humaine |
+| `reviewer_id` / `reviewer_role` | Identité et rôle vérifiés du réviseur |
+| `source_version_id` | Version exacte de l'avis examinée |
+| `match_result_id` | Résultat de rapprochement effectivement validé |
+| `artifact_hash` | Empreinte du PDF ou du message approuvé |
+| `decision` | `approuvé`, `rejeté` ou `correction_demandée` |
+| `reason` | Motif obligatoire, sans donnée sensible inutile |
+| `decided_at` | Date-heure UTC générée par le service |
+
+Le service de diffusion devra vérifier l'approbation au moment de l'envoi, et
+pas seulement lors de la génération du brouillon. Il refusera l'opération si
+l'empreinte de l'artefact, la version source, le résultat de rapprochement ou le
+rôle du réviseur ne correspondent plus à la décision enregistrée.
+
+Une nouvelle version de la source, un changement de règle affectant le résultat
+ou une modification du brouillon annulera automatiquement l'approbation
+précédente. L'annulation créera un événement d'audit ; elle ne supprimera ni ne
+réécrira la décision historique.
+
+Les écritures concurrentes devront utiliser un numéro de version ou un verrou
+optimiste. Une seule transition depuis `en attente de validation` pourra
+réussir ; une seconde décision fondée sur un état périmé sera refusée et devra
+recharger le dossier. Lorsque les procédures internes l'exigent, le rôle ayant
+préparé le brouillon ne pourra pas l'approuver lui-même.
+
+Les tests devront démontrer qu'un brouillon non approuvé ne peut pas être
+diffusé, qu'une modification invalide l'approbation, qu'un rôle non autorisé est
+refusé et que deux décisions concurrentes ne déclenchent jamais deux diffusions.
+
 ## Politique minimale des erreurs et des reprises
 
 Une erreur ne doit pas être relancée automatiquement sans classification préalable.
