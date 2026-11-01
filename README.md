@@ -149,6 +149,43 @@ des identifiants et empreintes, mais pas l'inventaire complet, des secrets ou de
 coordonnées personnelles en clair. L'accès au journal et sa durée de conservation
 devront être définis séparément des données opérationnelles.
 
+## Conservation et suppression des données
+
+La conservation devra être fondée sur la catégorie de donnée et sur l'état du
+dossier, et non sur une durée unique appliquée à tout le système. Les durées
+effectives devront être configurées, versionnées et validées avec les responsables
+métier, sécurité et protection des données avant tout usage réel.
+
+| Catégorie | Contenu minimal conservé | Fin de conservation |
+| --- | --- | --- |
+| Source publique | version brute ou empreinte, URL et date de collecte | expiration de la durée définie pour les preuves du dossier |
+| Données normalisées | champs nécessaires au rapprochement et version de règle | clôture du dossier suivie de la durée configurée |
+| Instantané d'inventaire | uniquement les références nécessaires à la décision | fin de la contestation ou de la revue associée |
+| Brouillons et artefacts | empreinte, statut et fichier lorsque sa conservation est justifiée | remplacement ou expiration selon le statut |
+| Notifications | identifiant, canal, destinataire pseudonymisé et résultat d'envoi | expiration de la durée opérationnelle configurée |
+| Journal d'audit | événements append-only et identifiants minimisés | durée d'audit approuvée, distincte des données métier |
+
+Les règles minimales sont les suivantes :
+
+- chaque enregistrement porte une catégorie, une date d'expiration et la version
+  de politique qui les a déterminées ;
+- une nouvelle politique s'applique aux nouvelles données et déclenche une
+  migration explicite des données existantes, jamais une réécriture silencieuse ;
+- une obligation de conservation suspend la suppression avec un motif, un acteur
+  et une échéance journalisés ;
+- la suppression est idempotente, produit un événement d'audit et ne journalise
+  ni le contenu supprimé ni une donnée sensible en clair ;
+- les sauvegardes ont une durée maximale documentée et les données expirées ne
+  doivent pas réapparaître durablement après une restauration ;
+- lorsque la preuve complète n'est plus nécessaire, seule une empreinte non
+  réversible et les métadonnées minimales peuvent être conservées.
+
+Un traitement planifié devra détecter les expirations, supprimer ou anonymiser
+les données concernées et produire un rapport agrégé. Les tests devront couvrir
+une expiration normale, une suspension de suppression, une seconde exécution
+sans effet supplémentaire et une restauration de sauvegarde ne réactivant pas
+un dossier expiré.
+
 ## Validation humaine et autorisation de diffusion
 
 Une sortie générée restera un brouillon tant qu'un réviseur autorisé ne l'aura
