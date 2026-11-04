@@ -253,6 +253,38 @@ reprise, qu'une erreur permanente n'est pas relancée, que l'épuisement des
 tentatives conduit à la quarantaine et que plusieurs reprises avec la même clé
 d'idempotence ne produisent jamais deux notifications réussies.
 
+## Contrôle d'accès et gestion des secrets
+
+Chaque acteur humain ou technique devra utiliser une identité distincte et ne
+recevoir que les permissions nécessaires à sa tâche. Une clé de service ne devra
+jamais être partagée entre la collecte, l'approbation et la diffusion.
+
+| Rôle | Autorisations minimales | Interdictions explicites |
+| --- | --- | --- |
+| `collecteur` | Lire les sources publiques et créer une version d'avis | Modifier une décision, approuver ou diffuser |
+| `analyste` | Normaliser les données et proposer des rapprochements | Transformer seul un candidat en correspondance approuvée |
+| `réviseur` | Consulter les preuves et enregistrer une décision humaine | Modifier les données sources ou envoyer une notification |
+| `diffuseur` | Envoyer uniquement un artefact dont l'approbation est encore valide | Générer ou auto-approuver son propre artefact |
+| `auditeur` | Lire les événements et les preuves nécessaires au contrôle | Modifier les événements ou les données opérationnelles |
+
+L'API devra authentifier chaque requête, vérifier le rôle au niveau de
+l'opération et refuser par défaut toute action non déclarée. Les actions
+sensibles — approbation, annulation, libération de quarantaine, diffusion et
+changement de politique — devront enregistrer l'identité, le rôle, la décision
+et l'identifiant de corrélation dans le journal d'audit.
+
+Les secrets devront provenir d'un gestionnaire de secrets ou de variables
+d'environnement injectées au démarrage. Ils ne devront apparaître ni dans le
+dépôt, ni dans les journaux, ni dans les messages d'erreur ou artefacts générés.
+La rotation ou la révocation d'un secret devra être possible sans modifier les
+données métier, et les identifiants techniques inactifs devront perdre
+immédiatement leurs autorisations.
+
+Les tests d'autorisation devront au minimum couvrir un accès sans identité, un
+rôle insuffisant, la séparation entre préparation et approbation, la révocation
+d'un jeton et la vérification qu'aucun secret n'est présent dans les événements
+d'audit ou les réponses d'erreur.
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
