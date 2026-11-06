@@ -90,6 +90,36 @@ Les règles minimales sont les suivantes :
 
 Le cycle minimal attendu est : `collecté` → `validé` → `rapproché` → `en attente de validation` → `approuvé` → `diffusé`. Les erreurs et rejets doivent rester enregistrés sans être assimilés à une diffusion réussie.
 
+## Corrections et retraits après diffusion
+
+Une diffusion réussie ne clôt pas définitivement le suivi d'un avis. Toute nouvelle
+version de la source officielle devra être comparée à la version effectivement
+approuvée et diffusée, y compris lorsqu'elle corrige un lot, une période, une
+conduite à tenir ou retire l'avis.
+
+Les règles minimales sont les suivantes :
+
+- enregistrer pour chaque diffusion le `source_version_id`, l'empreinte de
+  l'artefact, les canaux, les destinataires logiques et les accusés disponibles ;
+- classer chaque changement officiel comme `sans_impact`, `correction_requise`
+  ou `retrait`, avec justification et validation humaine ;
+- invalider immédiatement les brouillons et approbations fondés sur une version
+  devenue obsolète, sans effacer leur historique ;
+- suspendre les envois encore en attente dès qu'une correction ou un retrait est
+  détecté ;
+- produire une action corrective liée à la diffusion initiale, avec sa propre
+  approbation, sa clé d'idempotence et son état de livraison ;
+- ne jamais modifier silencieusement un PDF ou un message déjà archivé : créer
+  une nouvelle version explicitement marquée comme correction ou retrait ;
+- conserver la chaîne complète source → décision → diffusion initiale → action
+  corrective dans le journal d'audit.
+
+Le dossier ne pourra être marqué `corrigé` ou `retiré` qu'après vérification de
+chaque canal concerné. Un échec partiel restera visible et relançable sans créer
+de doublon. Les tests devront couvrir une correction avant envoi, une correction
+après envoi, un retrait, un canal indisponible et deux traitements concurrents de
+la même nouvelle version.
+
 ## Contrat minimal de données
 
 Le prototype devra convertir les données collectées vers un schéma interne stable avant tout rapprochement. Le contenu source brut ou son empreinte devra être conservé séparément afin de pouvoir expliquer et rejouer la normalisation.
