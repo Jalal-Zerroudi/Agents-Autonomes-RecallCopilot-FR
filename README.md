@@ -315,6 +315,37 @@ rôle insuffisant, la séparation entre préparation et approbation, la révocat
 d'un jeton et la vérification qu'aucun secret n'est présent dans les événements
 d'audit ou les réponses d'erreur.
 
+## Fraîcheur de la collecte et détection des silences
+
+L'absence de nouvel avis ne doit jamais être confondue avec un échec de collecte. Chaque
+interrogation de la source officielle devra produire un état observable, même lorsqu'elle ne
+retourne aucun résultat.
+
+Pour chaque cycle, le connecteur devra enregistrer au minimum :
+
+- `poll_started_at` et `poll_finished_at` en UTC ;
+- le dernier curseur ou point d'eau confirmé par la source ;
+- le nombre d'avis reçus, créés, mis à jour, ignorés et rejetés ;
+- un résultat explicite : `succès_avec_données`, `succès_sans_nouveauté`, `incomplet` ou `échec` ;
+- la version du connecteur et l'empreinte du schéma source observé ;
+- le code d'erreur et la prochaine reprise lorsqu'un cycle n'est pas complet.
+
+Le point d'eau ne pourra avancer qu'après validation et persistance de toutes les données du
+cycle. La collecte utilisera une fenêtre de recouvrement configurable, puis l'idempotence par
+`recall_id` et `source_hash`, afin de récupérer les publications tardives sans créer de doublons.
+Après une panne, le rattrapage repartira du dernier point d'eau confirmé, jamais de l'heure du
+redémarrage.
+
+Une alerte devra être déclenchée lorsque le dernier cycle réussi dépasse le seuil de fraîcheur
+configuré, lorsque le schéma source change, lorsqu'un curseur régresse ou lorsqu'un volume
+s'écarte fortement de sa plage habituelle. Un état de santé pourra exposer les horodatages, le
+retard et le résultat du dernier cycle, mais ni contenu d'inventaire, ni secret, ni donnée
+personnelle.
+
+Les tests devront couvrir un cycle réussi sans nouveauté, une interruption en cours de page, un
+changement de schéma, une publication tardive dans la fenêtre de recouvrement et un rattrapage
+rejoué deux fois sans duplication.
+
 ## Première feuille de route
 
 - définir les schémas d’entrée et de sortie ;
