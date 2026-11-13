@@ -4,6 +4,22 @@ RecallCopilot FR est un projet de copilote destiné à accélérer le traitement
 
 > **Statut :** ce dépôt décrit actuellement le concept du projet. Aucun code exécutable n’est encore versionné.
 
+## Navigation
+
+- [Objectifs et flux fonctionnel](#objectifs-envisagés)
+- [Architecture et principes de fiabilité](#architecture-envisagée)
+- [Validation EAN/GTIN](#règle-minimale-de-validation-eangtin)
+- [Rapprochement et niveaux de confiance](#politique-de-rapprochement-et-niveaux-de-confiance)
+- [Idempotence, mises à jour et corrections](#idempotence-et-gestion-des-mises-à-jour)
+- [Contrats de données et journal d’audit](#contrat-minimal-de-données)
+- [Conservation et suppression](#conservation-et-suppression-des-données)
+- [Validation humaine](#validation-humaine-et-autorisation-de-diffusion)
+- [Erreurs, reprises et quarantaine](#politique-minimale-des-erreurs-et-des-reprises)
+- [Contrôle d’accès et secrets](#contrôle-daccès-et-gestion-des-secrets)
+- [Fraîcheur de la collecte](#fraîcheur-de-la-collecte-et-détection-des-silences)
+- [Feuille de route et périmètre du prototype](#première-feuille-de-route)
+- [Critères d’acceptation](#critères-dacceptation-du-prototype)
+
 ## Objectifs envisagés
 
 - surveiller les nouveaux avis de rappel publiés par RappelConso ;
